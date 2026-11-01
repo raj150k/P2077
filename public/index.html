@@ -20,7 +20,8 @@
 
         /* Login Screen */
         #login-section { max-width: 400px; margin: 0 auto; }
-        #login-section input { width: 100%; padding: 12px; margin: 15px 0; background: rgba(0,0,0,0.5); border: 1px solid #00f2fe; color: #fff; border-radius: 10px; text-align: center; font-size: 1.1rem; }
+        #login-section input { width: 100%; padding: 12px; margin: 10px 0; background: rgba(0,0,0,0.5); border: 1px solid #00f2fe; color: #fff; border-radius: 10px; text-align: center; font-size: 1.1rem; outline: none; transition: 0.3s; }
+        #login-section input:focus { box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
         
         /* Main App */
         #main-app { display: none; }
@@ -70,15 +71,16 @@
     <canvas id="canvas3d"></canvas>
 
     <div class="glass-card">
-        <!-- LOGIN SECTION -->
+        <!-- LOGIN SECTION (Updated with Username & Password) -->
         <div id="login-section">
             <h2><i class="fa-solid fa-lock"></i> ADMIN LOGIN</h2>
+            <input type="text" id="adminUser" placeholder="Enter Username">
             <input type="password" id="adminPass" placeholder="Enter Password">
             <button class="btn-primary" onclick="checkLogin()">LOGIN</button>
             <p id="loginError" style="color:#ff4757; margin-top:10px; font-size: 0.85rem;"></p>
         </div>
 
-        <!-- MAIN APP (Hidden initially) -->
+        <!-- MAIN APP -->
         <div id="main-app">
             <h2>P2077 ADMIN PANEL</h2>
             
@@ -138,16 +140,19 @@
     </div>
 
     <script>
-        // --- 1. Login System ---
+        // --- 1. Login System (Updated with your credentials) ---
         function checkLogin() {
+            const user = document.getElementById("adminUser").value;
             const pass = document.getElementById("adminPass").value;
-            if(pass === "admin123") { // <-- আপনি চাইলে পাসওয়ার্ডটি এখান থেকে পরিবর্তন করতে পারেন
+            
+            // Checking both Username and Password
+            if(user === "raj150k" && pass === "Raj123@") {
                 document.getElementById("login-section").style.display = "none";
                 document.getElementById("main-app").style.display = "block";
-                document.querySelector('.glass-card').style.maxWidth = "850px"; // Make card wider for table
-                loadDashboard(); // Load data initially
+                document.querySelector('.glass-card').style.maxWidth = "850px"; 
+                loadDashboard(); 
             } else {
-                document.getElementById("loginError").innerText = "Incorrect Password!";
+                document.getElementById("loginError").innerText = "Incorrect Username or Password!";
             }
         }
 
@@ -162,7 +167,7 @@
             if(tabName === 'dashboard') loadDashboard();
         }
 
-        // --- 3. Format Date (DD/MM/YYYY, HH:MM) ---
+        // --- 3. Format Date ---
         function formatDate(dateString) {
             if(!dateString) return "Unlimited";
             const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -221,7 +226,7 @@
                     document.getElementById("generatedKey").innerText = data.key;
                     document.getElementById("resultBox").style.display = "flex";
                     statusMsg.style.color = "#00ff88"; statusMsg.innerText = "✓ Key Generated!";
-                    loadDashboard(); // Update dashboard in background
+                    loadDashboard(); 
                 } else {
                     statusMsg.style.color = "#ff4757"; statusMsg.innerText = "Error!";
                 }
@@ -238,7 +243,7 @@
                     const data = await res.json();
                     if(data.success) {
                         alert("Key Deleted Successfully!");
-                        loadDashboard(); // Refresh table
+                        loadDashboard(); 
                     }
                 } catch(e) {
                     alert("Delete Failed!");
@@ -286,4 +291,4 @@
         });
     </script>
 </body>
-    </html>
+                        </html>
