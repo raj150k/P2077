@@ -3,188 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2077 VIP License Manager</title>
-    <!-- Three.js Library for 3D Animation -->
+    <title>P2077 VIP Admin Panel</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #030305; color: #fff; overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center; }
-        
         #canvas3d { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         
         .glass-card { 
-            position: relative; z-index: 2; 
-            background: rgba(10, 10, 18, 0.65); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 242, 254, 0.2); 
-            border-radius: 20px; 
-            padding: 35px 30px; 
-            width: 90%; max-width: 440px; 
-            box-shadow: 0 0 40px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.05); 
-            text-align: center; 
+            position: relative; z-index: 2; background: rgba(10, 10, 18, 0.65); 
+            backdrop-filter: blur(20px); border: 1px solid rgba(0, 242, 254, 0.2); 
+            border-radius: 20px; padding: 30px; width: 95%; max-width: 800px; 
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.15); text-align: center; transition: 0.5s;
         }
 
-        h2 { 
-            font-size: 1.9rem; margin-bottom: 5px; 
-            background: linear-gradient(45deg, #00f2fe, #4facfe, #00ff88); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            text-transform: uppercase; letter-spacing: 2px;
-        }
-
-        p.subtitle { font-size: 0.85rem; color: #8a8a9e; margin-bottom: 25px; }
-
-        .input-group { margin-bottom: 18px; text-align: left; }
-        .input-group label { display: block; font-size: 0.75rem; color: #00f2fe; margin-bottom: 6px; letter-spacing: 1px; font-weight: bold; }
+        /* Login Screen */
+        #login-section { max-width: 400px; margin: 0 auto; }
+        #login-section input { width: 100%; padding: 12px; margin: 15px 0; background: rgba(0,0,0,0.5); border: 1px solid #00f2fe; color: #fff; border-radius: 10px; text-align: center; font-size: 1.1rem; }
         
-        .input-group select, .input-group input { 
-            width: 100%; padding: 12px; 
-            background: rgba(0, 0, 0, 0.6); 
-            border: 1px solid rgba(0, 242, 254, 0.3); 
-            border-radius: 10px; color: #fff; 
-            font-size: 0.95rem; outline: none; transition: 0.3s; 
-        }
+        /* Main App */
+        #main-app { display: none; }
+        
+        h2 { font-size: 1.8rem; background: linear-gradient(45deg, #00f2fe, #4facfe, #00ff88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-bottom: 15px; }
 
-        .input-group select option { background: #0a0a12; color: #fff; }
+        /* Tabs */
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .tab-btn { background: none; border: none; color: #8a8a9e; font-size: 1.1rem; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .tab-btn.active { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+        .tab-btn:hover { color: #fff; }
 
-        .btn-generate { 
-            width: 100%; padding: 14px; border: none; border-radius: 10px; 
-            background: linear-gradient(45deg, #00f2fe, #4facfe); 
-            color: #000; font-weight: bold; font-size: 1rem; cursor: pointer; 
-            transition: 0.3s; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-            margin-top: 10px;
-        }
+        /* Generator Inputs */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 0.8rem; color: #00f2fe; margin-bottom: 5px; font-weight: bold; }
+        .input-group select, .input-group input { width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 8px; color: #fff; outline: none; }
+        .input-group select option { background: #0a0a12; }
 
-        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0, 242, 254, 0.8); }
+        /* Buttons */
+        .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 8px; background: linear-gradient(45deg, #00f2fe, #4facfe); color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-primary:hover { box-shadow: 0 0 20px rgba(0, 242, 254, 0.6); }
 
-        .result-box { 
-            margin-top: 22px; background: rgba(0, 0, 0, 0.7); 
-            border: 1px dashed #00ff88; padding: 12px 15px; 
-            border-radius: 10px; display: flex; justify-content: space-between; align-items: center; 
-        }
+        /* Dashboard Table */
+        .dashboard-content { display: none; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; color: #00ff88; }
+        .table-container { max-height: 350px; overflow-y: auto; text-align: left; border-radius: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { background: rgba(0, 242, 254, 0.1); color: #00f2fe; position: sticky; top: 0; }
+        .status-active { color: #00ff88; font-weight: bold; }
+        .btn-delete { background: #ff4757; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .btn-delete:hover { box-shadow: 0 0 10px #ff4757; }
 
-        .key-text { font-family: 'Courier New', monospace; font-size: 1.1rem; color: #00ff88; font-weight: bold; }
-        .copy-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        /* Result Box */
+        .result-box { margin-top: 20px; background: rgba(0, 0, 0, 0.7); border: 1px dashed #00ff88; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .key-text { font-family: monospace; color: #00ff88; font-size: 1.1rem; }
+        .copy-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; }
         .copy-btn:hover { color: #00ff88; }
 
-        #statusMsg { margin-top: 15px; font-size: 0.85rem; }
-        .success { color: #00ff88; } .error { color: #ff4757; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #00f2fe; border-radius: 10px; }
     </style>
 </head>
 <body>
-
-    <!-- 3D Canvas Background -->
     <canvas id="canvas3d"></canvas>
 
-    <!-- UI Panel -->
     <div class="glass-card">
-        <h2>P2077 VIP KEY</h2>
-        <p class="subtitle">License Key Management Portal</p>
-
-        <!-- Duration Select (3, 7, 15, 30 Days) -->
-        <div class="input-group">
-            <label><i class="fa-regular fa-clock"></i> SELECT DURATION (মেয়াদ)</label>
-            <select id="keyDuration">
-                <option value="3">3 Days Validity</option>
-                <option value="7">7 Days Validity</option>
-                <option value="15">15 Days Validity</option>
-                <option value="30">30 Days Validity</option>
-            </select>
+        <!-- LOGIN SECTION -->
+        <div id="login-section">
+            <h2><i class="fa-solid fa-lock"></i> ADMIN LOGIN</h2>
+            <input type="password" id="adminPass" placeholder="Enter Password">
+            <button class="btn-primary" onclick="checkLogin()">LOGIN</button>
+            <p id="loginError" style="color:#ff4757; margin-top:10px; font-size: 0.85rem;"></p>
         </div>
 
-        <!-- Max Activations Input -->
-        <div class="input-group">
-            <label><i class="fa-solid fa-mobile-screen"></i> MAX ACTIVATIONS (ডিভাইস সীমা)</label>
-            <input type="number" id="maxActivations" value="1" min="1">
+        <!-- MAIN APP (Hidden initially) -->
+        <div id="main-app">
+            <h2>P2077 ADMIN PANEL</h2>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('generator')"><i class="fa-solid fa-key"></i> Generator</button>
+                <button class="tab-btn" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+            </div>
+
+            <!-- GENERATOR TAB -->
+            <div id="tab-generator">
+                <div class="input-group">
+                    <label>SELECT DURATION (মেয়াদ)</label>
+                    <select id="keyDuration">
+                        <option value="3">3 Days</option>
+                        <option value="7">7 Days</option>
+                        <option value="15">15 Days</option>
+                        <option value="30">30 Days</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>MAX ACTIVATIONS (ডিভাইস সীমা)</label>
+                    <input type="number" id="maxActivations" value="1" min="1">
+                </div>
+                <button class="btn-primary" onclick="generateKey()"><i class="fa-solid fa-bolt"></i> Generate Key</button>
+                
+                <div class="result-box" id="resultBox" style="display: none;">
+                    <span class="key-text" id="generatedKey">----</span>
+                    <button class="copy-btn" onclick="copyKey()"><i class="fa-regular fa-copy"></i></button>
+                </div>
+                <p id="statusMsg" style="margin-top:10px; font-size:0.85rem;"></p>
+            </div>
+
+            <!-- DASHBOARD TAB -->
+            <div id="tab-dashboard" class="dashboard-content">
+                <div class="stats">
+                    <span>Total Keys: <strong id="totalKeys">0</strong></span>
+                    <button style="background:none;border:none;color:#00f2fe;cursor:pointer;" onclick="loadDashboard()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>License Key</th>
+                                <th>Created (Date & Time)</th>
+                                <th>Expires (Date & Time)</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keysTableBody">
+                            <!-- Keys will load here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-
-        <button class="btn-generate" onclick="generateKey()">
-            <i class="fa-solid fa-bolt"></i> Generate Key Now
-        </button>
-
-        <!-- Result Section -->
-        <div class="result-box" id="resultBox" style="display: none;">
-            <span class="key-text" id="generatedKey">----</span>
-            <button class="copy-btn" onclick="copyKey()" title="Copy Key"><i class="fa-regular fa-copy"></i></button>
-        </div>
-
-        <p id="statusMsg"></p>
     </div>
 
     <script>
-        async function generateKey() {
-            const statusMsg = document.getElementById("statusMsg");
-            const duration = document.getElementById("keyDuration").value;
-            const maxAct = document.getElementById("maxActivations").value;
+        // --- 1. Login System ---
+        function checkLogin() {
+            const pass = document.getElementById("adminPass").value;
+            if(pass === "admin123") { // <-- আপনি চাইলে পাসওয়ার্ডটি এখান থেকে পরিবর্তন করতে পারেন
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("main-app").style.display = "block";
+                document.querySelector('.glass-card').style.maxWidth = "850px"; // Make card wider for table
+                loadDashboard(); // Load data initially
+            } else {
+                document.getElementById("loginError").innerText = "Incorrect Password!";
+            }
+        }
+
+        // --- 2. Tab Switching ---
+        function switchTab(tabName) {
+            document.getElementById("tab-generator").style.display = tabName === 'generator' ? 'block' : 'none';
+            document.getElementById("tab-dashboard").style.display = tabName === 'dashboard' ? 'block' : 'none';
             
-            statusMsg.className = ""; 
-            statusMsg.innerText = "Processing request to Database...";
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            if(tabName === 'dashboard') loadDashboard();
+        }
+
+        // --- 3. Format Date (DD/MM/YYYY, HH:MM) ---
+        function formatDate(dateString) {
+            if(!dateString) return "Unlimited";
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
+        // --- 4. Load Dashboard Data ---
+        async function loadDashboard() {
+            const tbody = document.getElementById("keysTableBody");
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>Loading data...</td></tr>";
             
             try {
-                const response = await fetch('/api/generate', {
+                const res = await fetch('/api/keys');
+                const data = await res.json();
+                
+                if(data.success && Array.isArray(data.keys)) {
+                    document.getElementById("totalKeys").innerText = data.keys.length;
+                    tbody.innerHTML = "";
+                    
+                    data.keys.forEach(row => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td style="font-family:monospace; color:#00f2fe;">${row.license_key}</td>
+                            <td>${formatDate(row.created_at)}</td>
+                            <td>${formatDate(row.expires_at)}</td>
+                            <td class="status-active">${row.status}</td>
+                            <td><button class="btn-delete" onclick="deleteKey('${row.license_key}')"><i class="fa-solid fa-trash"></i></button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>No keys found.</td></tr>";
+                    document.getElementById("totalKeys").innerText = "0";
+                }
+            } catch(e) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:red;'>Failed to load.</td></tr>";
+            }
+        }
+
+        // --- 5. Generate Key ---
+        async function generateKey() {
+            const statusMsg = document.getElementById("statusMsg");
+            statusMsg.style.color = "#fff"; statusMsg.innerText = "Processing...";
+            
+            try {
+                const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ days: duration, maxActivations: maxAct })
+                    body: JSON.stringify({
+                        days: document.getElementById("keyDuration").value,
+                        maxActivations: document.getElementById("maxActivations").value
+                    })
                 });
-                
-                const data = await response.json();
-                
-                if (data.success) {
+                const data = await res.json();
+                if(data.success) {
                     document.getElementById("generatedKey").innerText = data.key;
                     document.getElementById("resultBox").style.display = "flex";
-                    statusMsg.className = "success"; 
-                    statusMsg.innerText = `✓ Key created! Valid for ${data.days} Days.`;
+                    statusMsg.style.color = "#00ff88"; statusMsg.innerText = "✓ Key Generated!";
+                    loadDashboard(); // Update dashboard in background
                 } else {
-                    statusMsg.className = "error"; 
-                    statusMsg.innerText = "Database Error: " + data.message;
+                    statusMsg.style.color = "#ff4757"; statusMsg.innerText = "Error!";
                 }
-            } catch (err) {
-                statusMsg.className = "error"; 
-                statusMsg.innerText = "Connection Failed! Check internet.";
+            } catch(e) {
+                statusMsg.style.color = "#ff4757"; statusMsg.innerText = "Connection Failed!";
+            }
+        }
+
+        // --- 6. Delete Key ---
+        async function deleteKey(key) {
+            if(confirm("Are you sure you want to completely DELETE this key: " + key + "?")) {
+                try {
+                    const res = await fetch('/api/keys/' + key, { method: 'DELETE' });
+                    const data = await res.json();
+                    if(data.success) {
+                        alert("Key Deleted Successfully!");
+                        loadDashboard(); // Refresh table
+                    }
+                } catch(e) {
+                    alert("Delete Failed!");
+                }
             }
         }
 
         function copyKey() {
-            const key = document.getElementById("generatedKey").innerText;
-            navigator.clipboard.writeText(key);
-            alert("License Key Copied: " + key);
+            navigator.clipboard.writeText(document.getElementById("generatedKey").innerText);
+            alert("Copied!");
         }
 
-        // --- Three.js Dynamic 3D Animation Code ---
+        // --- 7. Three.js 3D Background ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d'), antialias: true });
-        
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-
-        // 3D Geometry (Glowing Cyber Sphere)
+        
         const geometry = new THREE.IcosahedronGeometry(12, 2);
         const material = new THREE.MeshBasicMaterial({ color: 0x00f2fe, wireframe: true });
         const sphere = new THREE.Mesh(geometry, material);
         scene.add(sphere);
 
-        // Background Floating Particles
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 600;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i=0; i < particlesCount*3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 80;
-        }
+        const posArray = new Float32Array(600 * 3);
+        for(let i=0; i < 600*3; i++) posArray[i] = (Math.random() - 0.5) * 80;
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.12, color: 0x00ff88 });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        const particlesMesh = new THREE.Points(particlesGeometry, new THREE.PointsMaterial({ size: 0.12, color: 0x00ff88 }));
         scene.add(particlesMesh);
 
         camera.position.z = 28;
 
         function animate() {
             requestAnimationFrame(animate);
-            sphere.rotation.x += 0.003;
-            sphere.rotation.y += 0.005;
+            sphere.rotation.x += 0.003; sphere.rotation.y += 0.005;
             particlesMesh.rotation.y -= 0.001;
             renderer.render(scene, camera);
         }
@@ -197,4 +286,4 @@
         });
     </script>
 </body>
-  </html>
+    </html>
